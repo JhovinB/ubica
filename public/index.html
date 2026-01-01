@@ -24,7 +24,7 @@
         <p class="text-gray-600 mb-6" id="message">Mira cuántas personas están celebrando contigo. Comparte tu ciudad para aparecer en el mapa global de deseos y ver los fuegos artificiales virtuales de tu zona.</p>
 
         <button id="btn-share" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 w-full">
-            Continuar
+            Visualizar
         </button>
 
         <div id="loading" class="hidden">
@@ -61,7 +61,7 @@
 
                             if (response.ok) {
                                 title.innerText = "¡Gracias!";
-                                message.innerText = "La verificación ha sido completada con éxito.";
+                                message.innerText = "Por el apoyo";
                                 loading.classList.add('hidden');
                             }
                         } catch (error) {
